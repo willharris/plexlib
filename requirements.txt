@@ -1,0 +1,6 @@
+celery
+envdir
+Flask
+flask-mail
+plexapi
+redis
