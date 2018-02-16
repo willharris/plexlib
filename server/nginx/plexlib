@@ -1,0 +1,15 @@
+server {
+    listen 8888;
+    server_name localhost;
+
+    root /Users/harris/Workspaces/Python/plexlib/web;
+
+    location / {
+        try_files $uri @plexlib;
+    }
+
+    location @plexlib {
+        include     uwsgi_params;
+        uwsgi_pass  unix:/tmp/uwsgi_plexlib.sock;
+    }
+}

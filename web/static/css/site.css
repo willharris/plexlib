@@ -1,0 +1,16 @@
+* {
+    font-family: 'Lucida Grande', 'Lucida Sans Unicode', 'Geneva', 'Verdana', sans-serif
+}
+
+th {
+    text-align: left;
+    font-size: 1.5rem;
+}
+
+td, th {
+    padding-right: 20px;
+}
+
+tr:nth-child(even) {
+    background: #CCC;
+}

@@ -1,9 +1,28 @@
 # -*- coding: utf-8 -*-
 import time
-from flask import request, jsonify
+from collections import OrderedDict
+
+from flask import request, jsonify, render_template, abort
 
 from plexlib import app
 from plexlib.tasks import do_update_library
+
+
+@app.route('/')
+@app.route('/index.html')
+def index():
+    return render_template('index.html')
+
+
+@app.route('/config/')
+def config():
+    # Only show the config if the request already knows the secret token
+    token = request.args.get('token')
+    if not token == app.config['PLEX_TOKEN']:
+        abort(404)
+
+    config = OrderedDict(sorted(app.config.iteritems()))
+    return render_template('config.html', config=config)
 
 
 @app.route('/update/from_name/', methods=['POST'])

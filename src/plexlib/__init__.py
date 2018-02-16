@@ -13,7 +13,7 @@ envs = os.path.join(this_dir, os.pardir, os.pardir, 'envs')
 if os.path.isdir(envs):
     envdir.open(envs)
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='../../web/static')
 config_class = import_string('config.%s' % os.environ.get('FLASK_CONFIG', 'DevConfig'))
 config_obj = config_class()
 app.config.from_object(config_obj)
