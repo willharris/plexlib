@@ -25,8 +25,9 @@ class BaseConfig(object):
     except KeyError as ex:
         raise ConfigurationException(ex)
 
-    PLEX_VIDEO_FILE_ROOT = os.environ.get('PLEX_VIDEO_FILE_ROOT', '/Volumes/Video')
-    
+    PLEX_MOVIES_ROOT = os.environ.get('PLEX_MOVIES_ROOT', '/Volumes/Video/Movies')
+    PLEX_TVSHOWS_ROOT = os.environ.get('PLEX_TVSHOWS_ROOT', '/Volumes/Video/TV')
+
     CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'amqp://plexlib:plexlib@localhost/plexlib')
     # CELERY_RESULT_BACKEND = os.environ.get('CELERY_BROKER_URL', 'amqp://plexlib:plexlib@localhost/plexlib')
 

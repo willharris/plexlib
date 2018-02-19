@@ -30,11 +30,10 @@ def find_file(name, start='/'):
     return fullpath
 
 
-def get_section_for_video_file(root, file_name):
+def get_section_for_video_file(file_name):
     """
     Determine the Plex section name for a video file.
 
-    :param str root: The path to the base directory for Plex video files.
     :param str file_name: The name of the file for which to search.
     :return: The name of the Plex section to which the file belongs.
     :rtype: str
@@ -43,8 +42,8 @@ def get_section_for_video_file(root, file_name):
     if not file_name:
         raise RuntimeError('No filename provided')
 
-    movie_lib = (os.path.join(root, 'Movies'), 'Movies')
-    tv_lib = (os.path.join(root, 'TV'), 'TV Shows')
+    movie_lib = (app.config['PLEX_MOVIES_ROOT'], 'Movies')
+    tv_lib = (app.config['PLEX_TVSHOWS_ROOT'], 'TV Shows')
     tv_match = re.search(r's\d+e\d+', file_name, re.I)
 
     if tv_match:
@@ -55,6 +54,8 @@ def get_section_for_video_file(root, file_name):
     section_name = None
 
     for search_dir, s_name in search_dirs:
+        if not os.path.isdir(search_dir):
+            raise RuntimeError('Could not find %s root directory at %s' % (s_name, search_dir))
         fullpath = find_file(file_name, search_dir)
         if fullpath:
             section_name = s_name
