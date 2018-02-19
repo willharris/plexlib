@@ -1,6 +1,6 @@
 # PlexLib
 
-This is a small Flask-based web application to allow on-demand updating of a Plex library, sending an email notification when new media has been added.
+This is a small Flask-based web application to allow on-demand updating of a [Plex](https://www.plex.tv) library, sending an email notification when new media has been added.
 
 #### Motivation
 
@@ -59,6 +59,18 @@ For example, if you wanted to update the "TV Shows" section, you could execute t
 For example if you had a file named "My Fancy Show S07E22 Awesome Episode.mp4", you could execute the following:
 
 `curl -d 'name=My Fancy Show S07E22 Awesome Episode.mp4' http://<your server>:8888/update/from_name/`
+
+### Procmail Usage
+
+As the original goal of this project was to automatically process emails from a Synology DiskStation, a sample [biff-type](https://en.wikipedia.org/wiki/Biff) utility is included at `src/syno_media_biff.py`, which can be used with procmail and a standard Python installation (no additional packages needed).
+
+To use the biffer, add a rule to your procmail ruleset:
+
+    :0 fbw
+    * ^Subject:.*download task completed
+    | PLEXLIB_BASE_URL=http://<your server>:8888 syno_media_biff.py -e
+
+The biffer will process the mail on standard input, and if it finds a new media file in the email, will call the PlexLib instance configured at `PLEXLIB_BASE_URL`. By using the `-e` option, the original content of the mail will be echoed to standard output, so you can deliver the mail as usual. The biffer adds additional information about the result of the PlexLib call to the end of the message.
 
 ## Todo
 
