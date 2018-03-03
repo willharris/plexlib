@@ -1,0 +1,47 @@
+version: "3"
+services:
+  flask:
+    build:
+      context: ../../../
+      dockerfile: ./server/docker/plexlib/flask/Dockerfile
+    hostname: "flask"
+    volumes:
+      - ../../../envs:/home/flask/envs:ro
+    depends_on:
+      - redis
+      - rabbitmq
+  celery:
+    build:
+      context: ../../../
+      dockerfile: ./server/docker/plexlib/celery/Dockerfile
+    hostname: "celery"
+    volumes:
+      - ../../../envs:/home/celery/envs:ro
+    depends_on:
+      - redis
+      - rabbitmq
+  redis:
+    image: "redis:alpine"
+    hostname: "redis"
+    ports:
+      - 6379:6379
+  rabbitmq:
+    image: "rabbitmq:management-alpine"
+    hostname: "rabbitmq"
+    environment:
+      - RABBITMQ_DEFAULT_USER=plexlib
+      - RABBITMQ_DEFAULT_PASS=plexlib
+      - RABBITMQ_DEFAULT_VHOST=plexlib
+      - RABBITMQ_ERLANG_COOKIE='rabbitmq-cookie'
+    ports:
+      - 15672:15672
+  nginx:
+    image: "nginx:alpine"
+    hostname: "nginx"
+    ports:
+      - 8888:8888
+    volumes:
+      - ../../../web:/usr/share/nginx/html:ro
+      - ./nginx/plexlib.conf:/etc/nginx/conf.d/plexlib.conf:ro
+    depends_on:
+      - flask

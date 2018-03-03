@@ -44,6 +44,32 @@ so if you want to use those values, you'll need to set up RabbitMQ appropriately
 
 6. Create an nginx virtual host and point it at your Flask socket file. A sample configuration can be found at `server/nginx/plexlib`.
 
+### Docker
+
+A basic `docker-compose` configuration is provided at `servers/docker/plexlib/docker-compose.yml`. Before bringing up the system, you should create the necessary environment files as described in step 4 of the instructions above - these will be mounted as read-only volumes in the `flask` and `celery` containers. *Note:* the `REDIS_URL` and `CELERY_BROKER_URL` variables should not be defined, as these are defined in the Dockerfiles so as to use the containerized services.
+
+The following command will build the images and bring up the containers:
+
+`docker-compose -f server/docker/plexlib/docker-compose.yml up -d`
+
+The Docker configuration consists of the following five containers (one for each basic service) and expose the following ports on `localhost`:
+
+* `flask`
+* `celery`
+* `nginx`: port 8888, for normal HTTP access
+* `redis`: port 6379, for access via `redis-cli` etc.
+* `rabbitmq`: port 15672, for access to the RabbitMQ web management console
+
+Sample output from `docker ps` is shown below:
+```
+CONTAINER ID        IMAGE                        COMMAND                  CREATED             STATUS              PORTS                                                                     NAMES
+c2d050927216        nginx:alpine                 "nginx -g 'daemon of…"   18 minutes ago      Up 18 minutes       80/tcp, 0.0.0.0:8888->8888/tcp                                            plexlib_nginx_1
+e39e7daf89b0        plexlib_celery               "celery -A plexlib.t…"   18 minutes ago      Up 18 minutes                                                                                 plexlib_celery_1
+e6c03fa787c4        plexlib_flask                "uwsgi --master --so…"   18 minutes ago      Up 18 minutes       3031/tcp                                                                  plexlib_flask_1
+0d37b0ea6279        redis:alpine                 "docker-entrypoint.s…"   2 hours ago         Up 18 minutes       0.0.0.0:6379->6379/tcp                                                    plexlib_redis_1
+09d8b3797e2b        rabbitmq:management-alpine   "docker-entrypoint.s…"   19 hours ago        Up 18 minutes       4369/tcp, 5671-5672/tcp, 15671/tcp, 25672/tcp, 0.0.0.0:15672->15672/tcp   plexlib_rabbitmq_1
+```
+
 ## Usage
 
 The system can be called two ways (assuming you are running on port 8888 as per the sample nginx configuration):
@@ -74,7 +100,9 @@ The biffer will process the mail on standard input, and if it finds a new media 
 
 ## Todo
 
+* <s>Dockerization</s>
+* Reconnect listener if connection lost
+* Exception handling in celery tasks
 * Add some launchctl plists for running on MacOS
-* Dockerization
 * Tests
 * Compatibility with Python 3
