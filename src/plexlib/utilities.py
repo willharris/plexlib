@@ -4,6 +4,7 @@ import os
 import re
 from logging.handlers import SMTPHandler, TimedRotatingFileHandler
 
+import requests
 from flask import request
 from plexapi.server import PlexServer
 
@@ -117,7 +118,12 @@ _plex_instance = None
 def get_plex():
     global _plex_instance
     if not _plex_instance:
-        _plex_instance = PlexServer(app.config['PLEX_URL'], app.config['PLEX_TOKEN'])
+        session = requests.Session()
+        if app.debug:
+            # When we are running in debug mode, disable the (default) gzip encoding so we can better
+            # observe the communicate with the Plex server
+            session.headers['Accept-Encoding'] = 'default'
+        _plex_instance = PlexServer(app.config['PLEX_URL'], app.config['PLEX_TOKEN'], session=session)
     return _plex_instance
 
 

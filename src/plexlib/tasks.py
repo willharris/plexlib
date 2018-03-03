@@ -2,6 +2,7 @@
 import json
 from collections import OrderedDict
 
+import os
 from celery import Celery
 from celery.utils.log import get_task_logger
 from flask import render_template
@@ -12,7 +13,10 @@ from plexlib.utilities import get_section_for_video_file, get_plex, get_section_
 
 celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
 celery.conf.update(app.config)
-celery_logger = get_task_logger(__name__)
+if os.environ.get('CELERY_ALWAYS_EAGER', False):
+    celery_logger = app.logger
+else:
+    celery_logger = get_task_logger(__name__)
 
 
 @celery.task()
