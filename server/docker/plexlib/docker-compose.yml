@@ -4,9 +4,11 @@ services:
     build:
       context: ../../../
       dockerfile: ./server/docker/plexlib/flask/Dockerfile
-    hostname: "flask"
+    hostname: "flask.local"
     volumes:
       - ../../../envs:/home/flask/envs:ro
+      - ${PLEX_MOVIES_ROOT:-/Volumes/Video/Movies}:/mnt/video/movies:ro
+      - ${PLEX_TVSHOWS_ROOT:-/Volumes/Video/TV}:/mnt/video/tv_shows:ro
     depends_on:
       - redis
       - rabbitmq
@@ -14,9 +16,11 @@ services:
     build:
       context: ../../../
       dockerfile: ./server/docker/plexlib/celery/Dockerfile
-    hostname: "celery"
+    hostname: "celery.local"
     volumes:
       - ../../../envs:/home/celery/envs:ro
+      - ${PLEX_MOVIES_ROOT:-/Volumes/Video/Movies}:/mnt/video/movies:ro
+      - ${PLEX_TVSHOWS_ROOT:-/Volumes/Video/TV}:/mnt/video/tv_shows:ro
     depends_on:
       - redis
       - rabbitmq
@@ -27,7 +31,7 @@ services:
       - 6379:6379
   rabbitmq:
     image: "rabbitmq:management-alpine"
-    hostname: "rabbitmq"
+    hostname: "rabbitmq.local"
     environment:
       - RABBITMQ_DEFAULT_USER=plexlib
       - RABBITMQ_DEFAULT_PASS=plexlib
@@ -37,7 +41,7 @@ services:
       - 15672:15672
   nginx:
     image: "nginx:alpine"
-    hostname: "nginx"
+    hostname: "nginx.local"
     ports:
       - 8888:8888
     volumes:

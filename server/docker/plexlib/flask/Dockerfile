@@ -15,6 +15,8 @@ COPY ./src ./src
 
 ENV REDIS_URL "redis://redis:6379/0"
 ENV CELERY_BROKER_URL "amqp://plexlib:plexlib@rabbitmq/plexlib"
+ENV PLEX_MOVIES_ROOT "/mnt/video/movies"
+ENV PLEX_TVSHOWS_ROOT "/mnt/video/tv_shows"
 
 WORKDIR /home/flask/src
 

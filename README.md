@@ -70,6 +70,22 @@ e6c03fa787c4        plexlib_flask                "uwsgi --master --so…"   18 m
 09d8b3797e2b        rabbitmq:management-alpine   "docker-entrypoint.s…"   19 hours ago        Up 18 minutes       4369/tcp, 5671-5672/tcp, 15671/tcp, 25672/tcp, 0.0.0.0:15672->15672/tcp   plexlib_rabbitmq_1
 ```
 
+#### Development
+
+To use Docker during development, you can run `docker-compose` and include the provided `dev` file:
+
+`docker-compose -f server/docker/plexlib/docker-compose.yml -f server/docker/plexlib/docker-compose.dev.yml up -d`
+
+This will replace the production `uwsgi` configuration in the `flask` container with a standard Flask development server, and mount the `src` and `web` directories in the container so that source code changes will be detected. Flask's standard port 5000 will also be exposed.
+
+*Tip*
+To make working with `docker-compse` simpler, without having to specify the files on the commandline, you can rename `docker-compose.dev.yml` to `docker-compose.override.yml`. If you run `docker-compse` from the `plexlib` directly, it will then pick up the override file automatically:
+
+```bash
+cd server/docker/plexlib
+docker-compose up -d
+``` 
+
 ## Usage
 
 The system can be called two ways (assuming you are running on port 8888 as per the sample nginx configuration):
