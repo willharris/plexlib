@@ -1,5 +1,13 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1>Welcome to PlexLib!</h1>
+    <h1>Welcome to PlexLib!</h1>
+
+    <p>Talking to the server at {{ url }} running Plex Media Server {{ version }}.</p>
+
+    <ul>{% for section in sections %}
+        <li>Refresh <a onclick="return PlexLib.updateSection('{{ section }}')" href="/update/{{ section }}/">{{ section }}</a> section</li>
+    {% endfor %}</ul>
+
+    <div id="results" class="results"></div>
 {% endblock %}

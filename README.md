@@ -102,6 +102,12 @@ For example if you had a file named "My Fancy Show S07E22 Awesome Episode.mp4", 
 
 `curl -d 'name=My Fancy Show S07E22 Awesome Episode.mp4' http://<your server>:8888/update/from_name/`
 
+### Homepage
+
+The PlexLib homepage provides a simple interface through which you can check that the server is working properly, and has a connection to your configured Plex Media Server. In addition, you can trigger an update for any of your library sections by clicking on the corresponding link.
+
+To navigate to the homepage, assuming your server is running at `localhost:8888`, just point your browser to http://localhost:8888/.
+
 ### Procmail Usage
 
 As the original goal of this project was to automatically process emails from a Synology DiskStation, a sample [biff-type](https://en.wikipedia.org/wiki/Biff) utility is included at `src/syno_media_biff.py`, which can be used with procmail and a standard Python installation (no additional packages needed).

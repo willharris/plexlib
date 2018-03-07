@@ -1,5 +1,5 @@
 * {
-    font-family: 'Lucida Grande', 'Lucida Sans Unicode', 'Geneva', 'Verdana', sans-serif
+    font-family: 'Lucida Grande', 'Lucida Sans Unicode', 'Geneva', 'Verdana', sans-serif;
 }
 
 th {
@@ -13,4 +13,8 @@ td, th {
 
 tr:nth-child(even) {
     background: #CCC;
+}
+
+.results {
+    font-family: monospace;
 }

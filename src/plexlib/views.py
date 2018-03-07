@@ -6,12 +6,15 @@ from flask import request, jsonify, render_template, abort
 
 from plexlib import app
 from plexlib.tasks import do_update_library
+from plexlib.utilities import get_plex
 
 
 @app.route('/')
 @app.route('/index.html')
 def index():
-    return render_template('index.html')
+    plex = get_plex()
+    sections = [x.title for x in plex.library.sections()]
+    return render_template('index.html', sections=sections, url=app.config['PLEX_URL'], version=plex.version)
 
 
 @app.route('/config/')

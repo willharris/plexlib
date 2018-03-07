@@ -1,0 +1,22 @@
+{
+  "name": "plexlib",
+  "version": "1.0.0",
+  "description": "This is a small Flask-based web application to allow on-demand updating of a [Plex](https://www.plex.tv) library, sending an email notification when new media has been added.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/willharris/plexlib.git"
+  },
+  "author": "Will Harris <will@harris.ch>",
+  "license": "AGPL-3.0",
+  "bugs": {
+    "url": "https://github.com/willharris/plexlib/issues"
+  },
+  "homepage": "https://github.com/willharris/plexlib#readme",
+  "devDependencies": {
+    "eslint": "^4.18.2"
+  }
+}
