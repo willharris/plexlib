@@ -123,8 +123,8 @@ The biffer will process the mail on standard input, and if it finds a new media 
 ## Todo
 
 * <s>Dockerization</s>
+* <s>Exception handling in celery tasks<s>
 * Reconnect listener if connection lost
-* Exception handling in celery tasks
 * Add some launchctl plists for running on MacOS
 * Tests
 * Compatibility with Python 3

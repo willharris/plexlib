@@ -2,5 +2,6 @@ celery
 envdir
 Flask
 flask-mail
+opbeat[flask]
 plexapi
 redis

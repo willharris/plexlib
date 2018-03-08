@@ -3,16 +3,14 @@ import json
 from collections import OrderedDict
 
 import os
-from celery import Celery
 from celery.utils.log import get_task_logger
 from flask import render_template
 from flask_mail import Message
 
 from plexlib import app, mail, redisdb
+from plexlib.celeryconfig import celery
 from plexlib.utilities import get_section_for_video_file, get_plex, get_section_updated_key
 
-celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
-celery.conf.update(app.config)
 if os.environ.get('CELERY_ALWAYS_EAGER', False):
     celery_logger = app.logger
 else:
