@@ -4,7 +4,7 @@ services:
     build:
       context: ../../../
       dockerfile: ./server/docker/plexlib/flask/Dockerfile
-    hostname: "flask.local"
+    domainname: "${DOMAIN_NAME:-flask.local}"
     volumes:
       - ../../../envs:/home/flask/envs:ro
       - ${PLEX_MOVIES_ROOT:-/Volumes/Video/Movies}:/mnt/video/movies:ro
@@ -16,7 +16,7 @@ services:
     build:
       context: ../../../
       dockerfile: ./server/docker/plexlib/celery/Dockerfile
-    hostname: "celery.local"
+    domainname: "${DOMAIN_NAME:-celery.local}"
     volumes:
       - ../../../envs:/home/celery/envs:ro
       - ${PLEX_MOVIES_ROOT:-/Volumes/Video/Movies}:/mnt/video/movies:ro
@@ -24,14 +24,23 @@ services:
     depends_on:
       - redis
       - rabbitmq
+  celerybeat:
+    build:
+      context: ../../../
+      dockerfile: ./server/docker/plexlib/celerybeat/Dockerfile
+    domainname: "${DOMAIN_NAME:-celerybeat.local}"
+    volumes:
+      - ../../../envs:/home/celery/envs:ro
+    depends_on:
+      - rabbitmq
   redis:
     image: "redis:alpine"
-    hostname: "redis"
+    domainname: "${DOMAIN_NAME:-redis.local}"
     ports:
       - 6379:6379
   rabbitmq:
     image: "rabbitmq:management-alpine"
-    hostname: "rabbitmq.local"
+    domainname: "${DOMAIN_NAME:-rabbitmq.local}"
     environment:
       - RABBITMQ_DEFAULT_USER=plexlib
       - RABBITMQ_DEFAULT_PASS=plexlib
@@ -41,7 +50,7 @@ services:
       - 15672:15672
   nginx:
     image: "nginx:alpine"
-    hostname: "nginx.local"
+    domainname: "${DOMAIN_NAME:-nginx.local}"
     ports:
       - 8888:8888
     volumes:

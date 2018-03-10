@@ -1,5 +1,9 @@
 import os
 import socket
+from datetime import timedelta
+
+from kombu import Queue, Exchange
+from kombu.common import Broadcast
 
 
 class ConfigurationException(RuntimeError):
@@ -27,9 +31,7 @@ class BaseConfig(object):
 
     PLEX_MOVIES_ROOT = os.environ.get('PLEX_MOVIES_ROOT', '/Volumes/Video/Movies')
     PLEX_TVSHOWS_ROOT = os.environ.get('PLEX_TVSHOWS_ROOT', '/Volumes/Video/TV')
-
-    CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'amqp://plexlib:plexlib@localhost/plexlib')
-    # CELERY_RESULT_BACKEND = os.environ.get('CELERY_BROKER_URL', 'amqp://plexlib:plexlib@localhost/plexlib')
+    PLEX_VIDEO_EXTS = set(eval(os.environ.get('PLEX_VIDEO_EXTS', "{'mp4', 'mkv', 'm4v', 'avi'}")))
 
     REDIS_URL = os.environ.get('REDIS_URL', 'redis://localhost:6379/1')
 
@@ -52,12 +54,34 @@ class BaseConfig(object):
             raise ConfigurationException('FLASK_ADMINS', 'list or tuple')
 
 
-class DevConfig(BaseConfig):
+class CeleryConfigMixin(object):
+    CELERY_TASK_DEFAULT_QUEUE = 'default'
+    CELERY_TASK_DEFAULT_EXCHANGE = 'default'
+    CELERY_TASK_DEFAULT_ROUTING_KEY = 'default'
+
+    CELERY_TASK_QUEUES = (
+        Queue('default', Exchange('default'), routing_key='default'),
+        Broadcast('broadcast', routing_key='broadcast'),
+    )
+
+    CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'amqp://plexlib:plexlib@localhost/plexlib')
+    CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', '')
+
+    CELERY_BEAT_SCHEDULE = {
+        'check-volumes': {
+            'task': 'plexlib.tasks.check_video_volumes',
+            'schedule': timedelta(minutes=30),
+            'options': {'queue': 'broadcast'}
+        }
+    }
+
+
+class DevConfig(BaseConfig, CeleryConfigMixin):
 
     DEBUG = eval(os.environ.get('FLASK_DEBUG', 'True'))
     CELERY_ALWAYS_EAGER = eval(os.environ.get('CELERY_ALWAYS_EAGER', 'True'))
 
 
-class ProdConfig(BaseConfig):
+class ProdConfig(BaseConfig, CeleryConfigMixin):
 
     SECRET_KEY = os.environ.get('SECRET_KEY', 'topitus-secretus!')

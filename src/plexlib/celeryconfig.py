@@ -3,10 +3,10 @@ from celery import Celery
 from opbeat.contrib.celery import register_signal
 from opbeat.contrib.flask import Opbeat
 
-from plexlib import app
+from plexlib import app, config_class
 
-celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
-celery.conf.update(app.config)
+celery = Celery(app.name, namespace='CELERY')
+celery.config_from_object(config_class)
 
 try:
     opbeat = Opbeat(app)

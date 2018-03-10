@@ -3,6 +3,8 @@ import json
 from collections import OrderedDict
 
 import os
+
+from celery.signals import worker_ready
 from celery.utils.log import get_task_logger
 from flask import render_template
 from flask_mail import Message
@@ -15,6 +17,11 @@ if os.environ.get('CELERY_ALWAYS_EAGER', False):
     celery_logger = app.logger
 else:
     celery_logger = get_task_logger(__name__)
+
+
+@worker_ready.connect
+def worker_init(**kwargs):
+    check_video_volumes()
 
 
 @celery.task()
@@ -102,3 +109,32 @@ def identify_new_media(section_name):
                 mail.send(msg)
     else:
         celery_logger.info('NOTIFICATION_RECIPIENT not configured, no notification sent')
+
+
+@celery.task()
+def check_video_volumes():
+    """
+    Looks for a video file inside the configured video volumes. Files are considered to be video files if
+    they have one of the extensions configured with the PLEX_VIDEO_EXTS setting.
+
+    :raises RuntimeError: if no video could be found
+    """
+    video_exts = app.config['PLEX_VIDEO_EXTS']
+    for root in ['PLEX_MOVIES_ROOT', 'PLEX_TVSHOWS_ROOT']:
+        root_dir = app.config[root]
+        if not os.path.isdir(root_dir):
+            raise RuntimeError('%s at %s is not a directory' % (root, root_dir))
+
+        has_videos = False
+        for dirname, _, files in os.walk(root_dir):
+            # get a set of all file extensions in this directory
+            file_exts = set(map(lambda x: x.decode('utf-8')[-3:].lower(), files))
+            intrsct = video_exts.intersection(file_exts)
+            if intrsct:
+                celery_logger.debug('Found movie types {%s} at %s', ', '.join(intrsct), dirname)
+                has_videos = True
+                break
+
+        if not has_videos:
+            raise RuntimeError('Did not find any files under %s ending in {%s}' % (root_dir, ', '.join(video_exts)))
+
