@@ -137,4 +137,3 @@ def check_video_volumes():
 
         if not has_videos:
             raise RuntimeError('Did not find any files under %s ending in {%s}' % (root_dir, ', '.join(video_exts)))
-

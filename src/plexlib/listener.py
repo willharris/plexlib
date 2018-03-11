@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
+import threading
 import time
 
 from plexlib import redisdb, app
 from plexlib.tasks import identify_new_media
-from plexlib.utilities import get_section_updated_key
+from plexlib.utilities import get_section_updated_key, get_plex
 
 
 def library_scan_callback(data):
@@ -42,3 +43,25 @@ def library_scan_callback(data):
                     app.logger.warn('Unhandled update notification: %s', title)
             else:
                 app.logger.warn('Unhandled status notification: %s', name)
+
+
+def launch_alert_listener(reschedule=True, interval=30.0):
+    """
+    Checks if an existing AlertListener thread is running, and if not, starts one. Optionally launches a Timer thread
+    to call the method again.
+
+    In the case that the Plex Media Server is restarted, any previously running AlertListener threads will
+    exit due to the WebSocket connection having been closed.
+
+    :param boolean reschedule: if True, will cause the method to be called again. Default: True
+    :param float interval: the interval at which to have the method called again. Default: 30s
+    """
+    thread_names = [x.__class__.__name__ for x in threading.enumerate()]
+
+    if 'AlertListener' not in thread_names:
+        plex = get_plex()
+        listener = plex.startAlertListener(callback=library_scan_callback)
+        app.logger.info('Started listener: %s', listener)
+
+    if reschedule:
+        threading.Timer(interval, launch_alert_listener).start()
