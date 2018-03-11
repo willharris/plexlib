@@ -115,12 +115,12 @@ def identify_new_media(section_name):
 def check_video_volumes():
     """
     Looks for a video file inside the configured video volumes. Files are considered to be video files if
-    they have one of the extensions configured with the PLEX_VIDEO_EXTS setting.
+    they have one of the extensions configured with the PLEXLIB_VIDEO_EXTS setting.
 
     :raises RuntimeError: if no video could be found
     """
-    video_exts = app.config['PLEX_VIDEO_EXTS']
-    for root in ['PLEX_MOVIES_ROOT', 'PLEX_TVSHOWS_ROOT']:
+    video_exts = app.config['PLEXLIB_VIDEO_EXTS']
+    for root in ['PLEXLIB_MOVIES_ROOT', 'PLEXLIB_TVSHOWS_ROOT']:
         root_dir = app.config[root]
         if not os.path.isdir(root_dir):
             raise RuntimeError('%s at %s is not a directory' % (root, root_dir))

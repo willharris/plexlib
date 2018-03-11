@@ -32,8 +32,8 @@ so if you want to use those values, you'll need to set up RabbitMQ appropriately
     * `NOTIFICATION_RECIPIENT`: an email address that will receive emails when the system detects that new media has been added to Plex.
     * `PLEX_TOKEN`: A valid authentication token for accessing your Plex server. See the [Plex Documentation](https://support.plex.tv/articles/204059436-finding-an-authentication-token-x-plex-token/) for information on how to find this token.
     * `PLEX_URL`: the URL to your Plex server.
-    * `PLEX_MOVIES_ROOT`: (optional) The root directory for your Plex movie files. Default: `/Volumes/Video/Movies`.
-    * `PLEX_TVSHOWS_ROOT`: (optional) The root directory for your Plex TV show files. Default: `/Volumes/Video/TV`.
+    * `PLEXLIB_MOVIES_ROOT`: (optional) The root directory for your Plex movie files. Default: `/Volumes/Video/Movies`.
+    * `PLEXLIB_TVSHOWS_ROOT`: (optional) The root directory for your Plex TV show files. Default: `/Volumes/Video/TV`.
     * `REDIS_URL`: (optional) If you want to use a different access URL to the one above.
     * `CELERY_BROKER_URL`: (optional) If you want to use a different access URL to the one above.
     * (optional) Any file created with the prefix `FLASK_` will be added to the Flask configuration.

@@ -10,15 +10,15 @@ from plexlib.listener import launch_alert_listener
 from plexlib.tasks import initialize_section_recents
 from plexlib.utilities import setup_logging
 
-setup_logging(os.path.join(os.path.dirname(__file__), os.pardir, 'logs'))
-
-if app.debug:
-    app.logger.debug('Environment: %s', json.dumps(OrderedDict(sorted(os.environ.iteritems()))))
-
-    strings = map(lambda kv: (kv[0], unicode(kv[1])), app.config.iteritems())
-    app.logger.debug('Config: %s', json.dumps(OrderedDict(sorted(strings))))
+setup_logging(app.config['PLEXLIB_LOGDIR'])
 
 if not app.config['DEBUG'] or 'UWSGI_ORIGINAL_PROC_NAME' in os.environ or os.environ.get('WERKZEUG_RUN_MAIN', False):
+    if app.debug:
+        app.logger.debug('Environment: %s', json.dumps(OrderedDict(sorted(os.environ.iteritems()))))
+
+        strings = map(lambda kv: (kv[0], unicode(kv[1])), app.config.iteritems())
+        app.logger.debug('Config: %s', json.dumps(OrderedDict(sorted(strings))))
+
     if 'OPBEAT_APP_ID' in os.environ:
         opbeat = Opbeat(app)
 

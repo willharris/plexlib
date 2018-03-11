@@ -1,36 +1,37 @@
 version: "3"
 services:
   flask:
+    image: willharris/plexlib:latest
     build:
       context: ../../../
       dockerfile: ./server/docker/plexlib/flask/Dockerfile
     domainname: "${DOMAIN_NAME:-flask.local}"
+    expose:
+      - 3031
     volumes:
-      - ../../../envs:/home/flask/envs:ro
-      - ${PLEX_MOVIES_ROOT:-/Volumes/Video/Movies}:/mnt/video/movies:ro
-      - ${PLEX_TVSHOWS_ROOT:-/Volumes/Video/TV}:/mnt/video/tv_shows:ro
+      - ../../../envs:/home/app/envs:ro
+      - ${PLEXLIB_MOVIES_ROOT:-/Volumes/Video/Movies}:/mnt/video/movies:ro
+      - ${PLEXLIB_TVSHOWS_ROOT:-/Volumes/Video/TV}:/mnt/video/tv_shows:ro
     depends_on:
       - redis
       - rabbitmq
   celery:
-    build:
-      context: ../../../
-      dockerfile: ./server/docker/plexlib/celery/Dockerfile
+    image: willharris/plexlib:latest
     domainname: "${DOMAIN_NAME:-celery.local}"
+    command: celery -A plexlib.tasks.celery worker --concurrency 1 --loglevel INFO
     volumes:
-      - ../../../envs:/home/celery/envs:ro
-      - ${PLEX_MOVIES_ROOT:-/Volumes/Video/Movies}:/mnt/video/movies:ro
-      - ${PLEX_TVSHOWS_ROOT:-/Volumes/Video/TV}:/mnt/video/tv_shows:ro
+      - ../../../envs:/home/app/envs:ro
+      - ${PLEXLIB_MOVIES_ROOT:-/Volumes/Video/Movies}:/mnt/video/movies:ro
+      - ${PLEXLIB_TVSHOWS_ROOT:-/Volumes/Video/TV}:/mnt/video/tv_shows:ro
     depends_on:
       - redis
       - rabbitmq
   celerybeat:
-    build:
-      context: ../../../
-      dockerfile: ./server/docker/plexlib/celerybeat/Dockerfile
+    image: willharris/plexlib:latest
     domainname: "${DOMAIN_NAME:-celerybeat.local}"
+    command: celery -A plexlib.tasks.celery beat --loglevel INFO --schedule /tmp/celerybeat-schedule.db --pidfile /tmp/celerybeat.pid
     volumes:
-      - ../../../envs:/home/celery/envs:ro
+      - ../../../envs:/home/app/envs:ro
     depends_on:
       - rabbitmq
   redis:

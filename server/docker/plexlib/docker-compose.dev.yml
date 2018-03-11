@@ -2,8 +2,9 @@ version: "3"
 services:
   flask:
     volumes:
-      - ../../../src:/home/flask/src:ro
-      - ../../../web:/home/flask/web:ro
+      - ../../../envs:/home/app/envs:ro
+      - ../../../src:/home/app/src:ro
+      - ../../../web:/home/app/web:ro
     ports:
       - 5000:5000
-    command: ["python", "/home/flask/src/run.py"]
+    command: ["python", "/home/app/src/run.py"]

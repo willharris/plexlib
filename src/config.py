@@ -29,9 +29,10 @@ class BaseConfig(object):
     except KeyError as ex:
         raise ConfigurationException(ex)
 
-    PLEX_MOVIES_ROOT = os.environ.get('PLEX_MOVIES_ROOT', '/Volumes/Video/Movies')
-    PLEX_TVSHOWS_ROOT = os.environ.get('PLEX_TVSHOWS_ROOT', '/Volumes/Video/TV')
-    PLEX_VIDEO_EXTS = set(eval(os.environ.get('PLEX_VIDEO_EXTS', "{'mp4', 'mkv', 'm4v', 'avi'}")))
+    PLEXLIB_LOGDIR = os.environ.get('PLEXLIB_LOGDIR', os.path.join(os.path.dirname(__file__), os.pardir, 'logs'))
+    PLEXLIB_MOVIES_ROOT = os.environ.get('PLEXLIB_MOVIES_ROOT', '/Volumes/Video/Movies')
+    PLEXLIB_TVSHOWS_ROOT = os.environ.get('PLEXLIB_TVSHOWS_ROOT', '/Volumes/Video/TV')
+    PLEXLIB_VIDEO_EXTS = set(eval(os.environ.get('PLEXLIB_VIDEO_EXTS', "{'mp4', 'mkv', 'm4v', 'avi'}")))
 
     REDIS_URL = os.environ.get('REDIS_URL', 'redis://localhost:6379/1')
 

@@ -43,8 +43,8 @@ def get_section_for_video_file(file_name):
     if not file_name:
         raise RuntimeError('No filename provided')
 
-    movie_lib = (app.config['PLEX_MOVIES_ROOT'], 'Movies')
-    tv_lib = (app.config['PLEX_TVSHOWS_ROOT'], 'TV Shows')
+    movie_lib = (app.config['PLEXLIB_MOVIES_ROOT'], 'Movies')
+    tv_lib = (app.config['PLEXLIB_TVSHOWS_ROOT'], 'TV Shows')
     tv_match = re.search(r's\d+e\d+', file_name, re.I)
 
     if tv_match:
@@ -79,10 +79,8 @@ def setup_logging(logdir):
                 record.remote_addr = '<no request>'
             return super(RequestFormatter, self).format(record)
 
-    formatter = RequestFormatter(
-        '[%(asctime)s] %(remote_addr)s requested %(url)s\n'
-        '%(levelname)s in %(module)s: %(message)s'
-    )
+    # TODO decide if we really need the request info, as it's often not there
+    formatter = RequestFormatter('[%(asctime)s][%(levelname)s][%(filename)s:%(lineno)d] %(message)s')
 
     mail_handler = SMTPHandler(
         mailhost=app.config['MAIL_SERVER'],
@@ -92,24 +90,22 @@ def setup_logging(logdir):
     )
     mail_handler._timeout = 15.0  # ugly hack, but the default of 5s is unacceptable and cannot be configured
     mail_handler.setLevel(logging.ERROR)
-    mail_handler.setFormatter(formatter)
 
-    if not os.path.isdir(logdir):
-        os.makedirs(logdir)
+    if logdir:
+        if not os.path.isdir(logdir):
+            os.makedirs(logdir)
 
-    file_handler = TimedRotatingFileHandler(os.path.join(logdir, 'plexlib.log'),
-                                            when='d', backupCount=10, encoding='utf-8')
-    file_handler.setFormatter(formatter)
+        file_handler = TimedRotatingFileHandler(os.path.join(logdir, 'plexlib.log'),
+                                                when='d', backupCount=10, encoding='utf-8')
+        file_handler.setFormatter(formatter)
+        app.logger.addHandler(file_handler)
+
+    for handler in app.logger.handlers:
+        handler.setLevel(logging.DEBUG if app.debug else logging.INFO)
+        handler.setFormatter(formatter)
 
     if not app.debug:
         app.logger.addHandler(mail_handler)
-        file_handler.setLevel(logging.INFO)
-        app.logger.setLevel(logging.INFO)
-    else:
-        file_handler.setLevel(logging.DEBUG)
-        app.logger.setLevel(logging.DEBUG)
-
-    app.logger.addHandler(file_handler)
 
 
 _plex_instance = None
