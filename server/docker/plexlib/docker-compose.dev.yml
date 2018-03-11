@@ -8,3 +8,10 @@ services:
     ports:
       - 5000:5000
     command: ["python", "/home/app/src/run.py"]
+  redis:
+    ports:
+      - 6379:6379
+  rabbitmq:
+    ports:
+      - 5672:5672
+      - 15672:15672

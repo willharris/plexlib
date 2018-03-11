@@ -45,7 +45,7 @@ def library_scan_callback(data):
                 app.logger.warn('Unhandled status notification: %s', name)
 
 
-def launch_alert_listener(reschedule=True, interval=30.0):
+def launch_alert_listener(reschedule=True, interval=5.0):
     """
     Checks if an existing AlertListener thread is running, and if not, starts one. Optionally launches a Timer thread
     to call the method again.
@@ -54,9 +54,15 @@ def launch_alert_listener(reschedule=True, interval=30.0):
     exit due to the WebSocket connection having been closed.
 
     :param boolean reschedule: if True, will cause the method to be called again. Default: True
-    :param float interval: the interval at which to have the method called again. Default: 30s
+    :param float interval: the interval in seconds after which to call the method again. Default: 5.0
     """
-    thread_names = [x.__class__.__name__ for x in threading.enumerate()]
+    threads = threading.enumerate()
+    # first check if first/main thread is still alive, and abort if not
+    if not threads[0].is_alive():
+        app.logger.info('Main thread is dead, aborting: %s', threads[0])
+        return
+
+    thread_names = [x.__class__.__name__ for x in threads]
 
     if 'AlertListener' not in thread_names:
         plex = get_plex()
