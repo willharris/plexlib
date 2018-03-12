@@ -33,7 +33,7 @@ const PlexLib = (function () {
 
     function updateSection(section) {
         let div = document.getElementById('results');
-        __makeRequest('GET', `/update/${section}`)
+        __makeRequest('GET', `/update/${section}/`)
             .then(function (data) {
                 div.innerText = data;
             })

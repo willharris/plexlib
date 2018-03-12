@@ -65,6 +65,7 @@ def launch_alert_listener(reschedule=True, interval=5.0):
     thread_names = [x.__class__.__name__ for x in threads]
 
     if 'AlertListener' not in thread_names:
+        app.logger.debug('Thread names: %s', thread_names)
         plex = get_plex()
         listener = plex.startAlertListener(callback=library_scan_callback)
         app.logger.info('Started listener: %s', listener)
