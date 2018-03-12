@@ -10,6 +10,8 @@ from plexapi.server import PlexServer
 
 from plexlib import app
 
+LOGFMT = '[%(asctime)s][%(filename)s:%(lineno)d][%(levelname)s/%(threadName)s] %(message)s'
+
 
 def find_file(name, start='/'):
     """
@@ -68,7 +70,7 @@ def get_section_for_video_file(file_name):
     return section_name
 
 
-def setup_logging(logdir):
+def setup_flask_logging(logdir):
     class RequestFormatter(logging.Formatter):
         def format(self, record):
             try:
@@ -80,7 +82,7 @@ def setup_logging(logdir):
             return super(RequestFormatter, self).format(record)
 
     # TODO decide if we really need the request info, as it's often not there
-    formatter = RequestFormatter('[%(asctime)s][%(levelname)s][%(filename)s:%(lineno)d] %(message)s')
+    formatter = RequestFormatter(LOGFMT)
 
     mail_handler = SMTPHandler(
         mailhost=app.config['MAIL_SERVER'],
@@ -99,6 +101,8 @@ def setup_logging(logdir):
                                                 when='d', backupCount=10, encoding='utf-8')
         file_handler.setFormatter(formatter)
         app.logger.addHandler(file_handler)
+
+    app.logger.setLevel(logging.DEBUG if app.debug else logging.INFO)
 
     for handler in app.logger.handlers:
         handler.setLevel(logging.DEBUG if app.debug else logging.INFO)

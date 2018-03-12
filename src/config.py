@@ -6,6 +6,17 @@ from kombu import Queue, Exchange
 from kombu.common import Broadcast
 
 
+def process_environment(target, prefix):
+    for key, rawval in os.environ.iteritems():
+        if key.startswith(prefix):
+            try:
+                val = eval(rawval)
+            except:
+                val = rawval
+
+            setattr(target, key[6:], val)
+
+
 class ConfigurationException(RuntimeError):
 
     def __init__(self, key, key_type=None):
@@ -39,20 +50,15 @@ class BaseConfig(object):
     NOTIFICATION_SENDER = os.environ.get('NOTIFICATION_SENDER', 'PlexLib <plexlib@%s>' % socket.getfqdn())
     NOTIFICATION_RECIPIENT = os.environ.get('NOTIFICATION_RECIPIENT', '')
 
-    def __init__(self):
-        for key, rawval in os.environ.iteritems():
-            if key.startswith('FLASK_'):
-                try:
-                    val = eval(rawval)
-                except:
-                    val = rawval
-
-                setattr(self, key[6:], val)
+    def __init__(self, *args, **kwargs):
+        process_environment(self, 'FLASK_')
 
         if not hasattr(self, 'ADMINS'):
             raise ConfigurationException('FLASK_ADMINS')
         elif not isinstance(self.ADMINS, (list, tuple)):
             raise ConfigurationException('FLASK_ADMINS', 'list or tuple')
+
+        super(BaseConfig, self).__init__(*args, **kwargs)
 
 
 class CeleryConfigMixin(object):
@@ -76,11 +82,16 @@ class CeleryConfigMixin(object):
         }
     }
 
+    def __init__(self, *args, **kwargs):
+        process_environment(self, 'CELERY_')
+
+        super(CeleryConfigMixin, self).__init__(*args, **kwargs)
+
 
 class DevConfig(BaseConfig, CeleryConfigMixin):
 
     DEBUG = eval(os.environ.get('FLASK_DEBUG', 'True'))
-    CELERY_ALWAYS_EAGER = eval(os.environ.get('CELERY_ALWAYS_EAGER', 'True'))
+    CELERY_TASK_ALWAYS_EAGER = eval(os.environ.get('CELERY_TASK_ALWAYS_EAGER', 'True'))
 
 
 class ProdConfig(BaseConfig, CeleryConfigMixin):

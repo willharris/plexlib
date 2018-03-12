@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 import json
-from collections import OrderedDict
-
 import os
+from collections import OrderedDict
+from logging import Formatter
 
 from celery.signals import worker_ready
 from celery.utils.log import get_task_logger
@@ -11,16 +11,18 @@ from flask_mail import Message
 
 from plexlib import app, mail, redisdb
 from plexlib.celeryconfig import celery
-from plexlib.utilities import get_section_for_video_file, get_plex, get_section_updated_key
+from plexlib.utilities import get_section_for_video_file, get_plex, get_section_updated_key, LOGFMT
 
-if os.environ.get('CELERY_ALWAYS_EAGER', False):
+if eval(os.environ.get('CELERY_TASK_ALWAYS_EAGER', 'False')):
     celery_logger = app.logger
+    for handler in celery_logger.handlers:
+        handler.setFormatter(Formatter(LOGFMT))
 else:
     celery_logger = get_task_logger(__name__)
 
 
 @worker_ready.connect
-def worker_init(**kwargs):
+def worker_ready(**kwargs):
     check_video_volumes()
 
 

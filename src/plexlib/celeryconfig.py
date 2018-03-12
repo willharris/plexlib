@@ -3,10 +3,10 @@ from celery import Celery
 from opbeat.contrib.celery import register_signal
 from opbeat.contrib.flask import Opbeat
 
-from plexlib import app, config_class
+from plexlib import app, config_obj
 
 celery = Celery(app.name, namespace='CELERY')
-celery.config_from_object(config_class)
+celery.config_from_object(config_obj)
 
 try:
     opbeat = Opbeat(app)
