@@ -1,4 +1,4 @@
-version: "3"
+version: "3.2"
 services:
   flask:
     image: willharris/plexlib:latest
@@ -8,8 +8,9 @@ services:
     domainname: "${DOMAIN_NAME:-flask.local}"
     expose:
       - 3031
+    env_file:
+      - ./plexlib-envs.txt
     volumes:
-      - ../../../envs:/home/app/envs:ro
       - ${PLEXLIB_MOVIES_ROOT:-/Volumes/Video/Movies}:/mnt/video/movies:ro
       - ${PLEXLIB_TVSHOWS_ROOT:-/Volumes/Video/TV}:/mnt/video/tv_shows:ro
     depends_on:
@@ -19,8 +20,9 @@ services:
     image: willharris/plexlib:latest
     domainname: "${DOMAIN_NAME:-celery.local}"
     command: celery -A plexlib.tasks.celery worker --concurrency 1 --loglevel INFO
+    env_file:
+      - ./plexlib-envs.txt
     volumes:
-      - ../../../envs:/home/app/envs:ro
       - ${PLEXLIB_MOVIES_ROOT:-/Volumes/Video/Movies}:/mnt/video/movies:ro
       - ${PLEXLIB_TVSHOWS_ROOT:-/Volumes/Video/TV}:/mnt/video/tv_shows:ro
     depends_on:
@@ -30,8 +32,8 @@ services:
     image: willharris/plexlib:latest
     domainname: "${DOMAIN_NAME:-celerybeat.local}"
     command: celery -A plexlib.tasks.celery beat --loglevel INFO --schedule /tmp/celerybeat-schedule.db --pidfile /tmp/celerybeat.pid
-    volumes:
-      - ../../../envs:/home/app/envs:ro
+    env_file:
+      - ./plexlib-envs.txt
     depends_on:
       - rabbitmq
   redis:

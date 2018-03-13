@@ -3,5 +3,6 @@ node_modules/
 
 envs/
 logs/
+server/docker/plexlib/plexlib-envs.txt
 
 *.pyc
