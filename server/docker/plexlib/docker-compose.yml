@@ -8,6 +8,9 @@ services:
     domainname: "${DOMAIN_NAME:-flask.local}"
     expose:
       - 3031
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=amqp://plexlib:plexlib@rabbitmq/plexlib
     env_file:
       - ./plexlib-envs.txt
     volumes:
@@ -20,6 +23,9 @@ services:
     image: willharris/plexlib:latest
     domainname: "${DOMAIN_NAME:-celery.local}"
     command: celery -A plexlib.tasks.celery worker --concurrency 1 --loglevel INFO
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=amqp://plexlib:plexlib@rabbitmq/plexlib
     env_file:
       - ./plexlib-envs.txt
     volumes:
@@ -32,6 +38,8 @@ services:
     image: willharris/plexlib:latest
     domainname: "${DOMAIN_NAME:-celerybeat.local}"
     command: celery -A plexlib.tasks.celery beat --loglevel INFO --schedule /tmp/celerybeat-schedule.db --pidfile /tmp/celerybeat.pid
+    environment:
+      - CELERY_BROKER_URL=amqp://plexlib:plexlib@rabbitmq/plexlib
     env_file:
       - ./plexlib-envs.txt
     depends_on:
@@ -39,6 +47,8 @@ services:
   redis:
     image: "redis:alpine"
     domainname: "${DOMAIN_NAME:-redis.local}"
+    deploy:
+      mode: global
   rabbitmq:
     image: "rabbitmq:management-alpine"
     domainname: "${DOMAIN_NAME:-rabbitmq.local}"
@@ -49,6 +59,8 @@ services:
       - RABBITMQ_ERLANG_COOKIE='rabbitmq-cookie'
     ports:
       - 15672:15672
+    deploy:
+      mode: global
   nginx:
     image: "nginx:alpine"
     domainname: "${DOMAIN_NAME:-nginx.local}"

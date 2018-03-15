@@ -12,8 +12,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY ./src ./src
 RUN chown -R plexlib:plexlib /home/app
 
-ENV REDIS_URL "redis://redis:6379/0"
-ENV CELERY_BROKER_URL "amqp://plexlib:plexlib@rabbitmq/plexlib"
 ENV PLEXLIB_LOGDIR ""
 ENV PLEXLIB_MOVIES_ROOT "/mnt/video/movies"
 ENV PLEXLIB_TVSHOWS_ROOT "/mnt/video/tv_shows"

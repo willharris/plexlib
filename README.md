@@ -46,7 +46,13 @@ so if you want to use those values, you'll need to set up RabbitMQ appropriately
 
 ### Docker
 
-A basic `docker-compose` configuration is provided at `servers/docker/plexlib/docker-compose.yml`. Before bringing up the system, you should create the necessary environment files as described in step 4 of the instructions above - these will be mounted as read-only volumes in the `flask`, `celery`, and `celerybeat` containers. *Note:* the `REDIS_URL` and `CELERY_BROKER_URL` variables should not be defined, as these are defined in the Dockerfiles so as to use the containerized services.
+A Dockerfile to build the main Flask application is provided at `servers/docker/plexlib/flask/Dockerfile`. The image can be built with the following command:
+
+`docker build -t plexlib -f server/docker/plexlib/flask/Dockerfile .`
+
+Without Redis and broker for Celery, the system will hang however, so a basic `docker-compose` configuration is provided at `servers/docker/plexlib/docker-compose.yml`.
+
+Before bringing up the system, you should create the necessary environment in the `servers/docker/plexlib/plexlib-envs.txt` file - these will be used in the `flask`, `celery`, and `celerybeat` containers. *Note:* the `REDIS_URL` and `CELERY_BROKER_URL` variables should not be defined in this case as these are defined in the compose file so as to use the containerized services. Also, if the values for `PLEXLIB_MOVIES_ROOT` and `PLEXLIB_TVSHOWS_ROOT` need to be changed, they should be specified in the environment in which you're calling `docker-compose`, as these are mounted as volumes within the containers.
 
 The following command will build the images and bring up the containers:
 
@@ -122,10 +128,20 @@ To use the biffer, add a rule to your procmail ruleset:
 
 The biffer will process the mail on standard input, and if it finds a new media file in the email, will call the PlexLib instance configured at `PLEXLIB_BASE_URL`. By using the `-e` option, the original content of the mail will be echoed to standard output, so you can deliver the mail as usual. The biffer adds additional information about the result of the PlexLib call to the end of the message.
 
+## Development Tips
+
+Three "template" files are provided within the repository, which will most likely be modified during experimentation. To avoid `git` constantly reminding that the files have been modified, use the following commands, which will prevent `git` from tracking changes to the files within the working directory.
+
+```bash
+git update-index --skip-worktree envs/PLEX_*
+git update-index --skip-worktree server/docker/plexlib/plexlib-envs.txt
+```
+
 ## Todo
 
 * <s>Dockerization</s>
 * <s>Exception handling in celery tasks</s>
 * <s>Reconnect listener if connection lost</s>
+* Add plist/s for running as services on macOS
 * Compatibility with Python 3
 * Tests

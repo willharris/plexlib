@@ -9,7 +9,7 @@ from werkzeug.utils import import_string
 
 this_dir = os.path.dirname(__file__)
 
-envs = os.path.join(this_dir, os.pardir, os.pardir, 'envs')
+envs = os.path.abspath(os.path.join(this_dir, os.pardir, os.pardir, 'envs'))
 if os.path.isdir(envs):
     envdir.open(envs)
 
