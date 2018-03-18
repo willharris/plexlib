@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
+import json
 import logging
 import os
 import re
+from collections import OrderedDict
 from logging.handlers import SMTPHandler, TimedRotatingFileHandler
 
 import requests
@@ -10,7 +12,7 @@ from plexapi.server import PlexServer
 
 from plexlib import app
 
-LOGFMT = '[%(asctime)s][%(filename)s:%(lineno)d][%(levelname)s/%(threadName)s] %(message)s'
+LOGFMT = '[%(asctime)s][%(filename)s:%(lineno)d][%(levelname)s][%(process)d/%(threadName)s] %(message)s'
 
 
 def find_file(name, start='/'):
@@ -129,3 +131,12 @@ def get_plex():
 
 def get_section_updated_key(section_name):
     return '%s_updated' % section_name
+
+
+def dump_env():
+    app.logger.debug('Environment: %s', json.dumps(OrderedDict(sorted(os.environ.iteritems()))))
+
+
+def dump_config():
+    strings = map(lambda kv: (kv[0], unicode(kv[1])), app.config.iteritems())
+    app.logger.debug('Config: %s', json.dumps(OrderedDict(sorted(strings))))

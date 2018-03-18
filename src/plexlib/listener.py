@@ -45,30 +45,37 @@ def library_scan_callback(data):
                 app.logger.warn('Unhandled status notification: %s', name)
 
 
-def launch_alert_listener(reschedule=True, interval=5.0):
+def check_alert_listener(event, timeout):
     """
-    Checks if an existing AlertListener thread is running, and if not, starts one. Optionally launches a Timer thread
-    to call the method again.
+    Checks if an existing AlertListener thread is running, and if not, starts one.
 
     In the case that the Plex Media Server is restarted, any previously running AlertListener threads will
     exit due to the WebSocket connection having been closed.
 
-    :param boolean reschedule: if True, will cause the method to be called again. Default: True
-    :param float interval: the interval in seconds after which to call the method again. Default: 5.0
+    :param threading.Event event: a threading event
+    :param int timeout: the time to wait between checks for the listener
     """
-    threads = threading.enumerate()
-    # first check if first/main thread is still alive, and abort if not
-    if not threads[0].is_alive():
-        app.logger.info('Main thread is dead, aborting: %s', threads[0])
-        return
+    while event and not event.wait(timeout):
+        thread_names = [x.__class__.__name__ for x in threading.enumerate()]
 
-    thread_names = [x.__class__.__name__ for x in threads]
+        if 'AlertListener' not in thread_names:
+            app.logger.debug("Didn't find AlertListener in thread names: %s", thread_names)
+            launch_alert_listener(0)
 
-    if 'AlertListener' not in thread_names:
-        app.logger.debug('Thread names: %s', thread_names)
-        plex = get_plex()
-        listener = plex.startAlertListener(callback=library_scan_callback)
-        app.logger.info('Started listener: %s', listener)
 
-    if reschedule:
-        threading.Timer(interval, launch_alert_listener).start()
+def launch_alert_listener(interval=0):
+    """
+    Launch a `plexapi.AlertListener` thread to receive updates directly from the Plex Media Server.
+
+    :param float interval: the interval in seconds after which the system should check that the `AlertListener` is
+        still alive. Set to 0 to disable rechecking. Default: 0
+    """
+    plex = get_plex()
+    listener = plex.startAlertListener(callback=library_scan_callback)
+    app.logger.info('Started listener: %s', listener)
+
+    if interval > 0:
+        event = threading.Event()
+        thread = threading.Thread(target=check_alert_listener, args=(event, interval))
+        thread.setDaemon(True)
+        thread.start()
