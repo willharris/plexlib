@@ -56,7 +56,8 @@ def check_alert_listener(event, timeout):
     :param int timeout: the time to wait between checks for the listener
     """
     while event and not event.wait(timeout):
-        thread_names = [x.__class__.__name__ for x in threading.enumerate()]
+        threads = threading.enumerate()
+        thread_names = [x.__class__.__name__ for x in threads]
 
         if 'AlertListener' not in thread_names:
             app.logger.debug("Didn't find AlertListener in thread names: %s", thread_names)
@@ -77,5 +78,6 @@ def launch_alert_listener(interval=0):
     if interval > 0:
         event = threading.Event()
         thread = threading.Thread(target=check_alert_listener, args=(event, interval))
+        thread.setName('AlertListenerWatcher')
         thread.setDaemon(True)
         thread.start()
