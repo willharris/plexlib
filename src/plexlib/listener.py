@@ -2,6 +2,8 @@
 import threading
 import time
 
+from plexapi.alert import AlertListener
+
 from plexlib import redisdb, app
 from plexlib.tasks import identify_new_media
 from plexlib.utilities import get_section_updated_key, get_plex
@@ -72,7 +74,9 @@ def launch_alert_listener(interval=0):
         still alive. Set to 0 to disable rechecking. Default: 0
     """
     plex = get_plex()
-    listener = plex.startAlertListener(callback=library_scan_callback)
+    listener = AlertListener(server=plex, callback=library_scan_callback)
+    listener.setName('AlertListener')
+    listener.start()
     app.logger.info('Started listener: %s', listener)
 
     if interval > 0:

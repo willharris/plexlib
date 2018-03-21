@@ -6,3 +6,4 @@ opbeat[flask]
 plexapi
 redis
 uwsgi
+uwsgidecorators
