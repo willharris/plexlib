@@ -44,6 +44,16 @@ so if you want to use those values, you'll need to set up RabbitMQ appropriately
 
 6. Create an nginx virtual host and point it at your Flask socket file. A sample configuration can be found at `server/nginx/plexlib`.
 
+#### Running as a service on macOS
+
+You can find a macOS plist file at `server/macos/ch.harris.plexlib.plist`. Copy this file to `~/Library/LaunchAgents` (if you will be running without a logged-in user, you may want to put it instead in `/Library/LaunchDaemons`, but you may want to make additional changes to run the services as a different user). Edit the file and replace all the strings starting with "path to" with the appropriate path on your system.
+
+Once the paths are correctly configured, you can start the service with the following command:
+
+`launchctl load ~/Library/LaunchAgents/ch.harris.plexlib.plist`
+
+The service will also start automatically whenever your user logs in.
+
 ### Docker
 
 A Dockerfile to build the main Flask application is provided at `servers/docker/plexlib/flask/Dockerfile`. The image can be built with the following command:
@@ -142,6 +152,6 @@ git update-index --skip-worktree server/docker/plexlib/plexlib-envs.txt
 * <s>Dockerization</s>
 * <s>Exception handling in celery tasks</s>
 * <s>Reconnect listener if connection lost</s>
-* Add plist/s for running as services on macOS
+* <s>Add plist/s for running as services on macOS</s>
 * Compatibility with Python 3
 * Tests

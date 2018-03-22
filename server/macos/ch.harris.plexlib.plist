@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist>
+    <dict>
+        <key>KeepAlive</key>
+        <true/>
+        <key>Label</key>
+        <string>ch.harris.plexlib</string>
+        <key>EnvironmentVariables</key>
+        <dict>
+            <key>VIRTUAL_ENV</key>
+            <string>path to your plexlib virtualenv</string>
+        </dict>
+        <key>ProgramArguments</key>
+        <array>
+            <string>path to your plexlib virtualenv/bin/uwsgi</string>
+            <string>--emperor</string>
+            <string>path to your plexlib directory/server/uwsgi</string>
+            <string>--logto</string>
+            <string>path to your plexlib directory/logs/uwsgi-emperor.log</string>
+        </array>
+        <key>RunAtLoad</key>
+        <true/>
+    </dict>
+</plist>
