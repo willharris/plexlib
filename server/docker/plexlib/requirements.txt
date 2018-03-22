@@ -5,3 +5,4 @@ flask-mail
 opbeat[flask]
 plexapi
 redis
+uwsgidecorators

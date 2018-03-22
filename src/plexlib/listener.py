@@ -2,6 +2,8 @@
 import threading
 import time
 
+from plexapi.alert import AlertListener
+
 from plexlib import redisdb, app
 from plexlib.tasks import identify_new_media
 from plexlib.utilities import get_section_updated_key, get_plex
@@ -56,7 +58,8 @@ def check_alert_listener(event, timeout):
     :param int timeout: the time to wait between checks for the listener
     """
     while event and not event.wait(timeout):
-        thread_names = [x.__class__.__name__ for x in threading.enumerate()]
+        threads = threading.enumerate()
+        thread_names = [x.__class__.__name__ for x in threads]
 
         if 'AlertListener' not in thread_names:
             app.logger.debug("Didn't find AlertListener in thread names: %s", thread_names)
@@ -71,11 +74,14 @@ def launch_alert_listener(interval=0):
         still alive. Set to 0 to disable rechecking. Default: 0
     """
     plex = get_plex()
-    listener = plex.startAlertListener(callback=library_scan_callback)
+    listener = AlertListener(server=plex, callback=library_scan_callback)
+    listener.setName('AlertListener')
+    listener.start()
     app.logger.info('Started listener: %s', listener)
 
     if interval > 0:
         event = threading.Event()
         thread = threading.Thread(target=check_alert_listener, args=(event, interval))
+        thread.setName('AlertListenerWatcher')
         thread.setDaemon(True)
         thread.start()
