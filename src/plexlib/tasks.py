@@ -102,7 +102,7 @@ def identify_new_media(section_name):
                     titles.append(item.title)
 
             with app.app_context():
-                msg = Message('New item in your Plex library',
+                msg = Message('New media in your Plex library',
                               sender=app.config['NOTIFICATION_SENDER'],
                               recipients=[app.config['NOTIFICATION_RECIPIENT']])
                 msg.body = render_template('email/new_media.txt',

@@ -2,4 +2,5 @@ PlexLib has detected new media added to your library!
 
 [{{ section_name }}]{% for title in titles %}
 - {{ title }}{% endfor %}
+
 Enjoy!
