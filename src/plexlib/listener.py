@@ -73,11 +73,14 @@ def launch_alert_listener(interval=0):
     :param float interval: the interval in seconds after which the system should check that the `AlertListener` is
         still alive. Set to 0 to disable rechecking. Default: 0
     """
-    plex = get_plex()
-    listener = AlertListener(server=plex, callback=library_scan_callback)
-    listener.setName('AlertListener')
-    listener.start()
-    app.logger.info('Started listener: %s', listener)
+    try:
+        plex = get_plex()
+        listener = AlertListener(server=plex, callback=library_scan_callback)
+        listener.setName('AlertListener')
+        listener.start()
+        app.logger.info('Started listener: %s', listener)
+    except Exception as ex:
+        app.logger.warn('Exception while trying to start listener: %s', ex)
 
     if interval > 0:
         event = threading.Event()
