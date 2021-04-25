@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
 
-from opbeat.contrib.flask import Opbeat
-
 from plexlib import app
 from plexlib.listener import launch_alert_listener
 from plexlib.tasks import initialize_section_recents
@@ -24,9 +22,6 @@ if os.environ.get('WERKZEUG_RUN_MAIN', False) or 'UWSGI_ORIGINAL_PROC_NAME' in o
     if app.debug:
         dump_env()
         dump_config()
-
-    if 'OPBEAT_APP_ID' in os.environ:
-        opbeat = Opbeat(app)
 
     if 'UWSGI_ORIGINAL_PROC_NAME' in os.environ:
         from uwsgidecorators import postfork

@@ -23,12 +23,13 @@ else:
 
 @worker_ready.connect
 def worker_ready(**kwargs):
+    celery_logger.info('Worker connected, checking for video volume availability')
     check_video_volumes()
 
 
 @celery.task()
 def dump_config():
-    cleaned = map(lambda kv: (kv[0], unicode(kv[1])), app.config.iteritems())
+    cleaned = map(lambda kv: (kv[0], str(kv[1])), app.config.iteritems())
     od = OrderedDict(sorted(cleaned))
     celery_logger.info('Flask Config: %s', json.dumps(od))
 
@@ -130,7 +131,7 @@ def check_video_volumes():
         has_videos = False
         for dirname, _, files in os.walk(root_dir):
             # get a set of all file extensions in this directory
-            file_exts = set(map(lambda x: x.decode('utf-8')[-3:].lower(), files))
+            file_exts = set(map(lambda x: x[-3:].lower(), files))
             intrsct = video_exts.intersection(file_exts)
             if intrsct:
                 celery_logger.debug('Found movie types {%s} at %s', ', '.join(intrsct), dirname)

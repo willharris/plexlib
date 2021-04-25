@@ -16,13 +16,20 @@ The system has been implemented with the following setup in mind:
 
 * Flask running under uWSGI behind nginx
 * Redis as a simple key/value store to keep track of when updates have been performed, and which media has been added to the system
-* Celery with RabbitMQ as an async task processor  
+* Celery with RabbitMQ as an async task processor
 
 ### Installation
 
 1. Install Redis. By default, the system uses the following access URL: `redis://localhost:6379/1`.
 2. Install RabbitMQ. By default, the system uses the following access URL: `amqp://plexlib:plexlib@localhost/plexlib`
 so if you want to use those values, you'll need to set up RabbitMQ appropriately.
+   ```
+   rabbitmqctl add_vhost plexlib
+   rabbitmqctl add_user plexlib plexlib
+   rabbitmqctl -p plexlib set_permissions plexlib '.*' '.*' '.*'
+   ```
+   Note: it's possible to use Redis as a broker instead of RabbitMQ, but as of this writing,
+   [Redis does not support broadcast tasks](https://github.com/celery/celery/issues/2638), which are used from Celerybeat to periodically check that Celery workers have access to the Plex video volume.
 3. Create a virtualenv called `plexlib`, and use `pip` to install the requirements from `requirements.txt`
 4. At the top of the project, create a directory named `envs`, and create the following files with the appropriate content. Alternatively, variables with these names can be specified directly in the environment for both Flask and Celery.
     * `FLASK_ADMINS`: a python list containing email addresses that should receive notifications in the event Flask throws an exception. Example: `['postmaster@yourdomain.com']`
@@ -39,7 +46,7 @@ so if you want to use those values, you'll need to set up RabbitMQ appropriately
     * (optional) Any file created with the prefix `FLASK_` will be added to the Flask configuration.
     * (optional) Have a look at `src/plexlib/config.py` for other configuration parameters.
 5. Run uWSGI in Emperor mode, pointing it at the directory containing the app configurations:
-    
+
     `uwsgi --emperor ./server/uwsgi`
 
 6. Create an nginx virtual host and point it at your Flask socket file. A sample configuration can be found at `server/nginx/plexlib`.
@@ -102,7 +109,7 @@ To make working with `docker-compse` simpler, without having to specify the file
 ```bash
 cd server/docker/plexlib
 docker-compose up -d
-``` 
+```
 
 ## Usage
 
@@ -153,5 +160,5 @@ git update-index --skip-worktree server/docker/plexlib/plexlib-envs.txt
 * <s>Exception handling in celery tasks</s>
 * <s>Reconnect listener if connection lost</s>
 * <s>Add plist/s for running as services on macOS</s>
-* Compatibility with Python 3
+* <s>Compatibility with Python 3</s>
 * Tests

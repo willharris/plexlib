@@ -113,6 +113,10 @@ def setup_flask_logging(logdir):
     if not app.debug:
         app.logger.addHandler(mail_handler)
 
+    plexlogger = logging.getLogger("plexapi")
+    for handler in app.logger.handlers:
+        plexlogger.addHandler(handler)
+
 
 _plex_instance = None
 
@@ -134,9 +138,9 @@ def get_section_updated_key(section_name):
 
 
 def dump_env():
-    app.logger.debug('Environment: %s', json.dumps(OrderedDict(sorted(os.environ.iteritems()))))
+    app.logger.debug('Environment: %s', json.dumps(OrderedDict(sorted(os.environ.items()))))
 
 
 def dump_config():
-    strings = map(lambda kv: (kv[0], unicode(kv[1])), app.config.iteritems())
+    strings = map(lambda kv: (kv[0], str(kv[1])), app.config.items())
     app.logger.debug('Config: %s', json.dumps(OrderedDict(sorted(strings))))

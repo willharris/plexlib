@@ -5,4 +5,5 @@ envs/
 logs/
 server/docker/plexlib/plexlib-envs.txt
 
+.env
 *.pyc

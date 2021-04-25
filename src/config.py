@@ -6,15 +6,15 @@ from kombu import Queue, Exchange
 from kombu.common import Broadcast
 
 
-def process_environment(target, prefix):
-    for key, rawval in os.environ.iteritems():
+def process_environment(target, prefix, keyfunc=lambda x, y: x[len(y):]):
+    for key, rawval in os.environ.items():
         if key.startswith(prefix):
             try:
                 val = eval(rawval)
             except:
                 val = rawval
 
-            setattr(target, key[6:], val)
+            setattr(target, keyfunc(key, prefix), val)
 
 
 class ConfigurationException(RuntimeError):
@@ -62,19 +62,20 @@ class BaseConfig(object):
 
 
 class CeleryConfigMixin(object):
-    CELERY_TASK_DEFAULT_QUEUE = 'default'
-    CELERY_TASK_DEFAULT_EXCHANGE = 'default'
-    CELERY_TASK_DEFAULT_ROUTING_KEY = 'default'
+    task_default_queue = 'default'
+    task_default_exchange = 'default'
+    task_default_routing_key = 'default'
 
-    CELERY_TASK_QUEUES = (
+    task_queues = (
         Queue('default', Exchange('default'), routing_key='default'),
         Broadcast('broadcast', routing_key='broadcast'),
     )
 
-    CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'amqp://plexlib:plexlib@localhost/plexlib')
-    CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', '')
+    broker_url = os.environ.get('CELERY_BROKER_URL', 'amqp://plexlib:plexlib@localhost/plexlib')
+    broker_transport_options = {'max_retries': 2}
+    result_backend = os.environ.get('CELERY_RESULT_BACKEND', '')
 
-    CELERY_BEAT_SCHEDULE = {
+    beat_schedule = {
         'check-volumes': {
             'task': 'plexlib.tasks.check_video_volumes',
             'schedule': timedelta(minutes=30),
@@ -83,7 +84,7 @@ class CeleryConfigMixin(object):
     }
 
     def __init__(self, *args, **kwargs):
-        process_environment(self, 'CELERY_')
+        process_environment(self, 'CELERY_', lambda x, y: x[7:].lower())
 
         super(CeleryConfigMixin, self).__init__(*args, **kwargs)
 
@@ -91,7 +92,7 @@ class CeleryConfigMixin(object):
 class DevConfig(BaseConfig, CeleryConfigMixin):
 
     DEBUG = eval(os.environ.get('FLASK_DEBUG', 'True'))
-    CELERY_TASK_ALWAYS_EAGER = eval(os.environ.get('CELERY_TASK_ALWAYS_EAGER', 'True'))
+    task_always_eager = eval(os.environ.get('CELERY_TASK_ALWAYS_EAGER', 'True'))
 
 
 class ProdConfig(BaseConfig, CeleryConfigMixin):
