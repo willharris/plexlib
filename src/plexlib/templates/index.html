@@ -5,9 +5,36 @@
 
     <p>Talking to the server at {{ url }} running Plex Media Server {{ version }}.</p>
 
-    <ul>{% for section in sections %}
-        <li>Refresh <a onclick="return PlexLib.updateSection('{{ section }}')" href="/update/{{ section }}/">{{ section }}</a> section</li>
-    {% endfor %}</ul>
+    {% for section in sections %}
+        <h3>{{ section }} section</h3>
+        <ul>
+            <li><a class="update" href="/update/{{ section }}/" data-section="{{ section }}">Refresh</a></li>
+            <li><a class="new-media" href="/new-media/{{ section }}/" data-section="{{ section }}">Search for new media</a></li>
+        </ul>
+    {% endfor %}
 
     <div id="results" class="results"></div>
+{% endblock %}
+
+
+{% block bodyjs %}
+    {{ super() }}
+
+    <script>
+        let update = document.querySelectorAll(".update");
+        update.forEach((elem) => {
+           elem.addEventListener("click", (event) => {
+               event.preventDefault();
+               PlexLib.updateSection(elem.dataset.section);
+           })
+        });
+
+        let newMedia = document.querySelectorAll(".new-media");
+        newMedia.forEach((elem) => {
+           elem.addEventListener("click", (event) => {
+               event.preventDefault();
+               PlexLib.newMediaInSection(elem.dataset.section);
+           })
+        });
+    </script>
 {% endblock %}

@@ -44,7 +44,21 @@ const PlexLib = (function () {
         return false;
     }
 
+    function newMediaInSection(section) {
+        let div = document.getElementById('results');
+        __makeRequest('GET', `/new-media/${section}/`)
+            .then(function (data) {
+                div.innerText = data;
+            })
+            .catch(function (error) {
+                div.innerText = `Error finding new media in section '${section}': ${error}`;
+            });
+
+        return false;
+    }
+
     return {
+        newMediaInSection: newMediaInSection,
         updateSection: updateSection
     };
 

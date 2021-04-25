@@ -8,6 +8,7 @@ from celery.signals import worker_ready
 from celery.utils.log import get_task_logger
 from flask import render_template
 from flask_mail import Message
+from natsort import natsorted
 
 from plexlib import app, mail, redisdb
 from plexlib.celeryconfig import celery
@@ -35,7 +36,7 @@ def dump_config():
 
 
 @celery.task(bind=True)
-def do_update_library(self, section_name=None, file_name=None, request_time=0.0):
+def do_update_library(self, section_name=None, file_name=None, request_time=0.0, **kwargs):
     celery_logger.info('library update requested: %s / %s / %s', section_name, file_name, request_time)
 
     if not section_name and file_name:
@@ -62,9 +63,10 @@ def do_update_library(self, section_name=None, file_name=None, request_time=0.0)
 
 
 @celery.task(autoretry_for=(Exception,), default_retry_delay=30)
-def initialize_section_recents():
+def initialize_section_recents(**kwargs):
     plex = get_plex()
 
+    celery_logger.info('Reading recent items from the Plex libraries...')
     for section in plex.library.sections():
         section_recents = set([x.key.replace('/library/metadata/', '') for x in section.recentlyAdded()])
         redisdb.set('%s_recents' % section.title, json.dumps(list(section_recents)))
@@ -72,7 +74,7 @@ def initialize_section_recents():
 
 
 @celery.task()
-def identify_new_media(section_name):
+def identify_new_media(section_name, **kwargs):
     plex = get_plex()
 
     section = plex.library.section(section_name)
@@ -83,8 +85,9 @@ def identify_new_media(section_name):
 
     old_section_recents = set(json.loads(old_section_recents))
 
-    diff = [item for item in new_section_recents if item not in old_section_recents]
+    diff = new_section_recents.difference(old_section_recents)
 
+    # Based on the item keys, we fill a new list with the actual Plex items
     diff_items = []
     for item in diff:
         diff_items.extend(filter(lambda x: x.key.endswith(item), section_recents))
@@ -100,7 +103,7 @@ def identify_new_media(section_name):
                 elif hasattr(item, 'artist'):
                     titles.append('%s - %s' % (item.artist().title, item.title))
                 else:
-                    titles.append(item.title)
+                    titles.append('%s (%s)' % (item.title, item.year))
 
             with app.app_context():
                 msg = Message('New media in your Plex library',
@@ -108,14 +111,14 @@ def identify_new_media(section_name):
                               recipients=[app.config['NOTIFICATION_RECIPIENT']])
                 msg.body = render_template('email/new_media.txt',
                                            section_name=section_name,
-                                           titles=titles)
+                                           titles=natsorted(titles))
                 mail.send(msg)
     else:
         celery_logger.info('NOTIFICATION_RECIPIENT not configured, no notification sent')
 
 
 @celery.task()
-def check_video_volumes():
+def check_video_volumes(**kwargs):
     """
     Looks for a video file inside the configured video volumes. Files are considered to be video files if
     they have one of the extensions configured with the PLEXLIB_VIDEO_EXTS setting.
