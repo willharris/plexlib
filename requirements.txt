@@ -2,6 +2,7 @@ celery[redis]
 Flask
 flask-mail
 ipython
+natsort
 plexapi
 python-dotenv
 redis

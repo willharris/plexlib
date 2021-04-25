@@ -5,7 +5,7 @@ from collections import OrderedDict
 from flask import request, jsonify, render_template, abort
 
 from plexlib import app
-from plexlib.tasks import do_update_library
+from plexlib.tasks import do_update_library, identify_new_media
 from plexlib.utilities import get_plex
 
 
@@ -28,22 +28,49 @@ def config():
     return render_template('config.html', config=config)
 
 
+def library_method(method, kwargs):
+    try:
+        kwargs['request_time'] = time.time()
+        kwargs['method'] = method.__name__
+
+        task = method.apply_async(kwargs=kwargs)
+
+        kwargs['success'] = True
+        kwargs['task_id'] = task.task_id
+    except Exception as ex:
+        kwargs['success'] = False
+        kwargs['error'] = ex.__class__.__name__
+        kwargs['message'] = str(ex)
+        app.logger.warn(ex)
+
+    app.logger.debug(f'Called library method: {kwargs}')
+    return jsonify(kwargs)
+
+
 @app.route('/update/from_name/', methods=['POST'])
 def update_from_name():
     try:
-        file_name = request.form['name'].decode('utf-8')
-        task = do_update_library.apply_async(kwargs={'file_name': file_name, 'request_time': time.time()})
+        kwargs = {
+            'file_name': request.form['name']
+        }
+        result = library_method(do_update_library, kwargs)
     except Exception as ex:
         return jsonify({'success': False, 'error': ex.__class__.__name__, 'message': str(ex)})
 
-    return jsonify({'success': True, 'file_name': file_name, 'task_id': task.task_id})
+    return result
 
 
 @app.route('/update/<section>/', methods=['GET'])
 def update_section(section):
-    try:
-        task = do_update_library.apply_async(kwargs={'section_name': section, 'request_time': time.time()})
-    except Exception as ex:
-        return jsonify({'success': False, 'error': ex.__class__.__name__, 'message': str(ex)})
+    kwargs = {
+        'section_name': section
+    }
+    return library_method(do_update_library, kwargs)
 
-    return jsonify({'success': True, 'section_name': section, 'task_id': task.task_id})
+
+@app.route('/new-media/<section>/', methods=['GET'])
+def new_media_in_section(section):
+    kwargs = {
+        'section_name': section
+    }
+    return library_method(identify_new_media, kwargs)

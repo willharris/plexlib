@@ -7,3 +7,4 @@ server/docker/plexlib/plexlib-envs.txt
 
 .env
 *.pyc
+yarn.lock

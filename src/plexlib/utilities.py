@@ -26,8 +26,6 @@ def find_file(name, start='/'):
     """
     fullpath = None
     for dirname, subdirs, files in os.walk(start):
-        subdirs = map(lambda x: x.decode('utf-8'), subdirs)
-        files = map(lambda x: x.decode('utf-8'), files)
         if name in files or name in subdirs:
             fullpath = os.path.join(dirname, name)
             break
