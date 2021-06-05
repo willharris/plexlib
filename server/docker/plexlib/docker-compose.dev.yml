@@ -7,7 +7,7 @@ services:
       - ../../../web:/home/app/web:ro
     ports:
       - 5000:5000
-    command: ["python", "/home/app/src/run.py"]
+    command: ["python3", "/home/app/src/run.py"]
   redis:
     ports:
       - 6379:6379

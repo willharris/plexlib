@@ -30,7 +30,7 @@ def worker_ready(**kwargs):
 
 @celery.task()
 def dump_config():
-    cleaned = map(lambda kv: (kv[0], str(kv[1])), app.config.iteritems())
+    cleaned = map(lambda kv: (kv[0], str(kv[1])), app.config.items())
     od = OrderedDict(sorted(cleaned))
     celery_logger.info('Flask Config: %s', json.dumps(od))
 

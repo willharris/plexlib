@@ -31,7 +31,7 @@ so if you want to use those values, you'll need to set up RabbitMQ appropriately
    Note: it's possible to use Redis as a broker instead of RabbitMQ, but as of this writing,
    [Redis does not support broadcast tasks](https://github.com/celery/celery/issues/2638), which are used from Celerybeat to periodically check that Celery workers have access to the Plex video volume.
 3. Create a virtualenv called `plexlib`, and use `pip` to install the requirements from `requirements.txt`
-4. At the top of the project, create a directory named `envs`, and create the following files with the appropriate content. Alternatively, variables with these names can be specified directly in the environment for both Flask and Celery.
+4. At the top of the project, create a file named `.env` and add the following variables with the appropriate values (format: key=value). Alternatively, variables with these names can be specified directly in the environment for both Flask and Celery.
     * `FLASK_ADMINS`: a python list containing email addresses that should receive notifications in the event Flask throws an exception. Example: `['postmaster@yourdomain.com']`
     * `FLASK_CONFIG`: (optional) set this to `ProdConfig` in a production environment.
     * `FLASK_DEBUG`: (optional) set this to `False` for a "production" environment.
@@ -63,13 +63,19 @@ The service will also start automatically whenever your user logs in.
 
 ### Docker
 
+#### PlexLib only
+
 A Dockerfile to build the main Flask application is provided at `servers/docker/plexlib/flask/Dockerfile`. The image can be built with the following command:
 
 `docker build -t plexlib -f server/docker/plexlib/flask/Dockerfile .`
 
+#### Full stack
+
 Without Redis and broker for Celery, the system will hang however, so a basic `docker-compose` configuration is provided at `servers/docker/plexlib/docker-compose.yml`.
 
-Before bringing up the system, you should create the necessary environment in the `servers/docker/plexlib/plexlib-envs.txt` file - these will be used in the `flask`, `celery`, and `celerybeat` containers. *Note:* the `REDIS_URL` and `CELERY_BROKER_URL` variables should not be defined in this case as these are defined in the compose file so as to use the containerized services. Also, if the values for `PLEXLIB_MOVIES_ROOT` and `PLEXLIB_TVSHOWS_ROOT` need to be changed, they should be specified in the environment in which you're calling `docker-compose`, as these are mounted as volumes within the containers.
+Before bringing up the system, you should create the necessary environment in the `servers/docker/plexlib/plexlib-envs.txt` file - these will be used in the `flask`, `celery`, and `celerybeat` containers. *Note:* the `REDIS_URL` and `CELERY_BROKER_URL` variables should not be defined when using a "docker compose" stack, as these variables are defined in the compose file to point to the containerized services.
+
+If the values for `PLEXLIB_MOVIES_ROOT` and `PLEXLIB_TVSHOWS_ROOT` need to be changed, they should be specified in the environment in which you're calling `docker-compose`, as these are mounted as volumes within the containers.
 
 The following command will build the images and bring up the containers:
 
@@ -77,9 +83,9 @@ The following command will build the images and bring up the containers:
 
 The Docker configuration consists of the following six containers (one for each basic service) and expose the following ports on `localhost`:
 
-* `flask`
-* `celery`
-* `celerybeat`
+* `flask`: no ports
+* `celery`: no ports
+* `celerybeat`: no ports
 * `nginx`: port 8888, for normal HTTP access
 * `redis`: port 6379, for access via `redis-cli` etc.
 * `rabbitmq`: port 15672, for access to the RabbitMQ web management console
@@ -103,7 +109,7 @@ To use Docker during development, you can run `docker-compose` and include the p
 
 This will replace the production `uwsgi` configuration in the `flask` container with a standard Flask development server, and mount the `src` and `web` directories in the container so that source code changes will be detected. Flask's standard port 5000 will also be exposed.
 
-*Tip*
+*Tip*:
 To make working with `docker-compse` simpler, without having to specify the files on the commandline, you can rename `docker-compose.dev.yml` to `docker-compose.override.yml`. If you run `docker-compse` from the `plexlib` directly, it will then pick up the override file automatically:
 
 ```bash

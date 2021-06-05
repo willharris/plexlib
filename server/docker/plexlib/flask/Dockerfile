@@ -1,13 +1,13 @@
 FROM alpine:latest
 
-RUN apk add --no-cache python py-pip uwsgi uwsgi-python
+RUN apk add --no-cache python3 py3-pip uwsgi uwsgi-python3
 
 RUN adduser -h /home/app -D plexlib
 
 WORKDIR /home/app
 
 COPY ./server/docker/plexlib/requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip3 install --no-cache-dir -r requirements.txt
 
 COPY ./src ./src
 RUN chown -R plexlib:plexlib /home/app

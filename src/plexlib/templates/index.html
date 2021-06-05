@@ -3,7 +3,20 @@
 {% block content %}
     <h1>Welcome to PlexLib!</h1>
 
-    <p>Talking to the server at {{ url }} running Plex Media Server {{ version }}.</p>
+    <table>
+        <tr>
+            <th>Host</th>
+            <td>{{ hostname }}</td>
+        </tr>
+        <tr>
+            <th>Plex Media Server</th>
+            <td>{{ url }}</td>
+        </tr>
+        <tr>
+            <th>Plex Media Server Version</th>
+            <td>{{ version }}</td>
+        </tr>
+    </table>
 
     {% for section in sections %}
         <h3>{{ section }} section</h3>
