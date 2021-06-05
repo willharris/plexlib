@@ -4,12 +4,25 @@
 
 {% block content %}
 <h1>Flask Configuration</h1>
-<table>
+<table class="config">
     <tr>
         <th>Parameter</th>
         <th>Value</th>
     </tr>
     {% for key, val in config.items() %}
+    <tr>
+        <td>{{ key }}</td>
+        <td>{{ val }}</td>
+    </tr>
+    {% endfor %}
+</table>
+<h1>Environment</h1>
+<table class="config">
+    <tr>
+        <th>Parameter</th>
+        <th>Value</th>
+    </tr>
+    {% for key, val in env.items() %}
     <tr>
         <td>{{ key }}</td>
         <td>{{ val }}</td>
