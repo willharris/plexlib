@@ -5,9 +5,9 @@
 
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/site.css') }}">
 
+    {% block extrahead %}{% endblock %}
 
     <title>{% block title %}PlexLib{% endblock %}</title>
-
 </head>
 <body>
 {% block content %}{% endblock %}
