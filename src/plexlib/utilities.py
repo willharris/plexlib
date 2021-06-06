@@ -4,10 +4,11 @@ import logging
 import os
 import re
 from collections import OrderedDict
+from functools import wraps
 from logging.handlers import SMTPHandler, TimedRotatingFileHandler
 
 import requests
-from flask import request
+from flask import request, abort
 from plexapi.library import LibrarySection
 from plexapi.server import PlexServer
 
@@ -155,3 +156,17 @@ def dump_env():
 def dump_config():
     strings = map(lambda kv: (kv[0], str(kv[1])), app.config.items())
     app.logger.debug('Config: %s', json.dumps(OrderedDict(sorted(strings))))
+
+
+def require_token(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        # Only show the config if the request already knows the secret token
+        token = request.args.get('token')
+        if not token == app.config['PLEX_TOKEN']:
+            app.logger.warn('Called protected method without token')
+            abort(404)
+        else:
+            return func(*args, token=token, **kwargs)
+    return wrapper
+

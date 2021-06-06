@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block title %}PlexLib Debugging{% endblock %}
+
+{% block content %}
+    <h1>PlexLib Debugging</h1>
+    <ul>
+        <li><a href="/debug/config/?token={{ token }}" target="_blank">Dump configuration</a></li>
+        {% for section in sections %}
+        <li><a href="/debug/dump-recents/{{ section }}/?token={{ token }}">Dump {{ section }} section recents</a></li>
+        {% endfor %}
+    </ul>
+{% endblock %}

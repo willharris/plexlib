@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
-import os
 import socket
 import time
-from collections import OrderedDict
 
-from flask import request, jsonify, render_template, abort
+from flask import request, jsonify, render_template
 
 from plexlib import app
 from plexlib.tasks import do_update_library, identify_new_media
@@ -23,17 +21,6 @@ def index():
         'version': plex.version,
     }
     return render_template('index.html', **context)
-
-
-@app.route('/config/')
-def config():
-    # Only show the config if the request already knows the secret token
-    token = request.args.get('token')
-    if not token == app.config['PLEX_TOKEN']:
-        abort(404)
-
-    config = OrderedDict(sorted(app.config.items()))
-    return render_template('config.html', config=config, env=os.environ)
 
 
 def library_method(method, **kwargs):
@@ -68,17 +55,17 @@ def update_from_name():
     return result
 
 
-@app.route('/update/<section>/', methods=['GET'])
-def update_section(section):
+@app.route('/update/<section_name>/', methods=['GET'])
+def update_section(section_name):
     kwargs = {
-        'section_name': section
+        'section_name': section_name
     }
     return library_method(do_update_library, **kwargs)
 
 
-@app.route('/new-media/<section>/', methods=['GET'])
-def new_media_in_section(section):
+@app.route('/new-media/<section_name>/', methods=['GET'])
+def new_media_in_section(section_name):
     kwargs = {
-        'section_name': section
+        'section_name': section_name
     }
     return library_method(identify_new_media, **kwargs)

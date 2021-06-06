@@ -21,3 +21,6 @@ mail = Mail(app)
 redisdb = redis.Redis.from_url(app.config['REDIS_URL'], decode_responses=True)
 
 from plexlib import views
+
+from plexlib.debug_views import mod_debug
+app.register_blueprint(mod_debug, url_prefix='/debug/')

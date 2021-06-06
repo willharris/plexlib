@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block extrahead %}
+<style>
+    .recents {
+        float: left;
+        padding-right: 50px;
+    }
+</style>
+{% endblock %}
+
+{% block title %}PlexLib {{ section_name }} Recents {% endblock %}
+
+{% block content %}
+    <h1>PlexLib {{ section_name }} Recents</h1>
+
+    <div class="recents">
+        <h2>Cached Recents</h2>
+        <ul>
+        {% for recent in cached_recents %}
+            <li>{{ recent }}</li>
+        {% endfor %}
+        </ul>
+    </div>
+
+    <div class="recents">
+        <h2>Plex Recents</h2>
+        <ul>
+        {% for recent in plex_recents %}
+            <li>{{ recent }}</li>
+        {% endfor %}
+        </ul>
+    </div>
+{% endblock %}
