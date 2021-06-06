@@ -12,7 +12,7 @@ from natsort import natsorted
 
 from plexlib import app, mail, redisdb
 from plexlib.celeryconfig import celery
-from plexlib.utilities import get_section_for_video_file, get_plex, get_section_updated_key, LOGFMT
+from plexlib.utilities import get_section_for_video_file, get_plex, get_section_updated_key, LOGFMT, get_section_recents
 
 if eval(os.environ.get('CELERY_TASK_ALWAYS_EAGER', 'False')):
     celery_logger = app.logger
@@ -68,7 +68,7 @@ def initialize_section_recents(**kwargs):
 
     celery_logger.info('Reading recent items from the Plex libraries...')
     for section in plex.library.sections():
-        section_recents = set([x.key.replace('/library/metadata/', '') for x in section.recentlyAdded()])
+        section_recents = set([x.key.replace('/library/metadata/', '') for x in get_section_recents(section)])
         redisdb.set('%s_recents' % section.title, json.dumps(list(section_recents)))
         celery_logger.info('Stored %d recent items from %s', len(section_recents), section.title)
 
@@ -78,7 +78,7 @@ def identify_new_media(section_name, **kwargs):
     plex = get_plex()
 
     section = plex.library.section(section_name)
-    section_recents = section.recentlyAdded()
+    section_recents = get_section_recents(section)
 
     new_section_recents = set([x.key.replace('/library/metadata/', '') for x in section_recents])
     old_section_recents = redisdb.getset('%s_recents' % section_name, json.dumps(list(new_section_recents)))
