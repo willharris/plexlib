@@ -8,6 +8,7 @@ from logging.handlers import SMTPHandler, TimedRotatingFileHandler
 
 import requests
 from flask import request
+from plexapi.library import LibrarySection
 from plexapi.server import PlexServer
 
 from plexlib import app
@@ -68,6 +69,18 @@ def get_section_for_video_file(file_name):
         raise RuntimeError('Could not find section name for file %s' % file_name)
 
     return section_name
+
+
+def get_section_recents(section: LibrarySection) -> list:
+    """
+    Utility function to get the appropriate recently added items in a section.
+
+    This is a work-around function for inconsistencies between the Plex API and the Plex server.
+    :param section: The section in which to search
+    :return: A list containing the recently added items, sorted from most to least recent
+    """
+    assert hasattr(section, 'METADATA_TYPE')
+    return section.search(sort='addedAt:desc', maxresults=50, libtype=section.METADATA_TYPE)
 
 
 def setup_flask_logging(logdir):
