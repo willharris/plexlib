@@ -98,3 +98,12 @@ class DevConfig(BaseConfig, CeleryConfigMixin):
 class ProdConfig(BaseConfig, CeleryConfigMixin):
 
     SECRET_KEY = os.environ.get('SECRET_KEY', 'topitus-secretus!')
+
+
+class TestConfig(BaseConfig):
+
+    DEBUG = True
+    PLEX_URL = None
+    PLEX_TOKEN = "Dummy Token"
+    # Celery
+    task_always_eager = True
