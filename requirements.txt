@@ -1,9 +1,10 @@
-celery
--e git+http://github.com/jezdez/envdir@518ebc61b85c5b20d4f8c8f878ab5708b4f02857#egg=envdir
+celery[redis]
 Flask
 flask-mail
-opbeat[flask]
+ipython
 plexapi
+python-dotenv
 redis
 uwsgi
 uwsgidecorators
+websocket-client

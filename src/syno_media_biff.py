@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 Parse an email sent from Synology DSM DownloadStation and biff the PlexLib server.
 
@@ -19,14 +19,15 @@ Procmail recipe:
 import os
 import re
 import sys
-import urllib
-import urllib2
+
+from urllib.parse import urlencode
+from urllib.request import urlopen
 
 
 try:
     PLEXLIB_URL = os.environ['PLEXLIB_BASE_URL']
 except KeyError:
-    print 'Please specify PLEXLIB_BASE_URL in the environment'
+    print('Please specify PLEXLIB_BASE_URL in the environment')
     sys.exit(1)
 
 
@@ -62,16 +63,16 @@ def main(echo=False):
             pass
 
     if location == 'Video' and videofile:
-        data = urllib.urlencode([('name', videofile)])
+        data = urlencode([('name', videofile)])
         url = '%s/update/from_name/' % PLEXLIB_URL
-        print url
-        print data
+        print(url)
+        print(data)
         try:
-            conn = urllib2.urlopen(url, data)
-            print 'Result:'
-            print conn.read()
+            conn = urlopen(url, data.encode("utf8"))
+            print('Result:')
+            print(conn.read())
         except Exception as ex:
-            print 'Error calling PlexLib: %s' % ex
+            print('Error calling PlexLib: %s' % ex)
 
 
 if __name__ == '__main__':
