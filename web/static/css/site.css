@@ -10,6 +10,10 @@ td, th {
     padding-right: 20px;
 }
 
+tr {
+    vertical-align: top;
+}
+
 .config th {
     font-size: 1.5rem;
 }

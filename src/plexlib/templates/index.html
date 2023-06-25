@@ -23,7 +23,7 @@
         <ul>
             <li><a class="update" href="/update/{{ section }}/" data-section="{{ section }}">Refresh</a></li>
             <li><a class="new-media" href="/new-media/{{ section }}/" data-section="{{ section }}">Search for new media</a></li>
-            <li><a class="recents" href="/dump-recents/{{ section }}/" target="_blank">Dump recent items</a></li>
+            <li><a class="empty-trash" href="/empty-trash/{{ section }}/" data-section="{{ section }}">Empty trash</a></li>
         </ul>
     {% endfor %}
 
@@ -39,7 +39,7 @@
         update.forEach((elem) => {
            elem.addEventListener("click", (event) => {
                event.preventDefault();
-               PlexLib.updateSection(elem.dataset.section);
+               PlexLib.libraryAction(elem.dataset.section, "update");
            })
         });
 
@@ -47,7 +47,15 @@
         newMedia.forEach((elem) => {
            elem.addEventListener("click", (event) => {
                event.preventDefault();
-               PlexLib.newMediaInSection(elem.dataset.section);
+               PlexLib.libraryAction(elem.dataset.section, "new-media");
+           })
+        });
+
+        let emptyTrash = document.querySelectorAll(".empty-trash");
+        emptyTrash.forEach((elem) => {
+           elem.addEventListener("click", (event) => {
+               event.preventDefault();
+               PlexLib.libraryAction(elem.dataset.section, "empty-trash");
            })
         });
     </script>

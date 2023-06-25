@@ -143,3 +143,16 @@ def check_video_volumes(**kwargs):
 
         if not has_videos:
             raise RuntimeError('Did not find any files under %s ending in {%s}' % (root_dir, ', '.join(video_exts)))
+
+
+@celery.task()
+def empty_trash(section_name, **kwargs):
+    """
+    Empty the trash of the corresponding section.
+
+    :param section_name: name of section in which to empty trash
+    """
+    plex = get_plex()
+
+    section = plex.library.section(section_name)
+    section.emptyTrash()

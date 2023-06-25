@@ -24,3 +24,6 @@ from plexlib import views
 
 from plexlib.debug_views import mod_debug
 app.register_blueprint(mod_debug, url_prefix='/debug/')
+
+from plexlib.tools.flask_cache_bust import init_cache_busting
+init_cache_busting(app)

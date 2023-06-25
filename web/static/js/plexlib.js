@@ -31,35 +31,21 @@ const PlexLib = (function () {
         });
     }
 
-    function updateSection(section) {
+    function libraryAction(section, action) {
         let div = document.getElementById('results');
-        __makeRequest('GET', `/update/${section}/`)
+        __makeRequest('GET', `/${action}/${section}/`)
             .then(function (data) {
                 div.innerText = data;
             })
             .catch(function (error) {
-                div.innerText = `Error updating section '${section}': ${error}`;
-            });
-
-        return false;
-    }
-
-    function newMediaInSection(section) {
-        let div = document.getElementById('results');
-        __makeRequest('GET', `/new-media/${section}/`)
-            .then(function (data) {
-                div.innerText = data;
-            })
-            .catch(function (error) {
-                div.innerText = `Error finding new media in section '${section}': ${error}`;
+                div.innerText = `Error doing '${action}' in section '${section}': ${JSON.stringify(error)}`;
             });
 
         return false;
     }
 
     return {
-        newMediaInSection: newMediaInSection,
-        updateSection: updateSection
+        libraryAction: libraryAction
     };
 
 }());

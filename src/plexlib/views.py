@@ -5,7 +5,7 @@ import time
 from flask import request, jsonify, render_template
 
 from plexlib import app
-from plexlib.tasks import do_update_library, identify_new_media
+from plexlib.tasks import do_update_library, identify_new_media, empty_trash
 from plexlib.utilities import get_plex
 
 
@@ -69,3 +69,11 @@ def new_media_in_section(section_name):
         'section_name': section_name
     }
     return library_method(identify_new_media, **kwargs)
+
+
+@app.route('/empty-trash/<section_name>/', methods=['GET'])
+def emtpy_trash(section_name):
+    kwargs = {
+        'section_name': section_name
+    }
+    return library_method(empty_trash, **kwargs)
